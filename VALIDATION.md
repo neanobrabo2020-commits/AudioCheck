@@ -15,7 +15,8 @@ Logs em evidence/ no pacote de entrega; SHA256 acompanha o aplicativo.
 Captura real WASAPI, loopback, sessões/processos reais, desconexão/reconexão, PCM extensível em driver real, responsividade prolongada, Windows 11 e hardware XLR. Não foram iniciadas gravações no hardware do usuário. ASIO direto não implementado. Não se alega identificação conclusiva da origem do ruído.
 
 ## GitHub
-Workflow configurado para Windows. Sua execução remota será registrada separadamente após envio ao repositório e confirmação do job; os testes locais não equivalem a um job GitHub bem-sucedido.
+Workflow executado com sucesso no GitHub Actions: https://github.com/neanobrabo2020-commits/AudioCheck/actions/runs/38105450552 . Commit de código: a05fa0a213021f8b1054063257b999fb00f00144. Testes numéricos, integração WAV/WinForms, publicação win-x64, smoke test do exe e upload dos artefatos concluíram. Executável e evidências foram baixados. SHA256 conferido: A62FDD776CB685E73D9862DF8E8FFD530DBB1904521E333FDD742BEB788D02C9. Captura real não foi iniciada; validação de hardware continua pendente.
 
 ## Teste manual recomendado
 Medir 10 s de silêncio; iniciar/parar repetidamente; confirmar canal; comparar com medidor da DAW; testar loopback compartilhado; remover/reconectar interface durante captura; exportar JSON com e sem sinal; comparar WAVs equivalentes sem normalização. Registrar taxa, ganho, canal e efeitos em cada ensaio.
+
