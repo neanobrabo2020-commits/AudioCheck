@@ -1,0 +1,48 @@
+name: Windows build and verification
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Numerical and decoder regression tests
+        run: dotnet run --project Tests/Tests.csproj -c Release
+      - name: WAV and WinForms integration tests
+        run: dotnet run --project IntegrationTests/IntegrationTests.csproj -c Release -- artifacts/evidence
+      - name: Publish Windows x64
+        run: dotnet publish AudioSignalInspector/AudioSignalInspector.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o artifacts/app
+      - name: GUI startup smoke test
+        shell: pwsh
+        run: |
+          $process = Start-Process artifacts/app/AudioSignalInspector.exe -ArgumentList '--smoke-test artifacts/evidence/exe-smoke' -PassThru -WindowStyle Hidden
+          try {
+            if (-not $process.WaitForExit(30000)) { throw 'Startup timed out' }
+            if ($process.ExitCode -ne 0) { throw 'Startup failed' }
+            if (-not (Test-Path artifacts/evidence/exe-smoke/PASS.txt)) { throw 'Missing GUI evidence' }
+          } finally {
+            if (-not $process.HasExited) { Stop-Process -Id $process.Id }
+          }
+      - name: Checksums
+        shell: pwsh
+        run: Get-FileHash artifacts/app/AudioSignalInspector.exe -Algorithm SHA256 | Format-List | Out-File artifacts/app/SHA256.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AudioSignalInspector-win-x64
+          path: artifacts/app/
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: validation-evidence
+          path: artifacts/evidence/
+
+
